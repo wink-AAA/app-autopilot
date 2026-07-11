@@ -1,0 +1,137 @@
+# 求职自动投递配置模板
+# 复制本文件到 ./autopilot_configs/job_config.yaml 并填入实际值
+
+platform:
+  name: "Boss直聘"                      # 目标平台名称
+  app_package: "com.hp.android.boss"     # App包名（Android）
+  entry_point: "底部「职位」tab"          # 进入投递页面的入口
+
+# 用户画像
+user_profile:
+  target_cities: ["广州"]                # 目标城市
+  target_positions: ["内容运营", "新媒体运营"]  # 目标岗位分类
+  min_salary: 8000                       # 最低期望薪资（元/月）
+  preferred_directions:                  # 偏好方向（加分项）
+    - "AI方向"
+    - "大模型"
+    - "内容策略"
+
+# 打分规则
+scoring:
+  total_max: 110                         # 总分上限（参考值）
+  threshold: 60                          # 低于此分不投递
+  priority_threshold: 80                 # 高于此分优先投递
+  dimensions:
+    - name: "薪资匹配"
+      weight: 20
+      rules:
+        - condition: "最低薪资 >= user_profile.min_salary"
+          score: 20
+        - condition: "最低薪资 < user_profile.min_salary"
+          score: 0
+    - name: "城市匹配"
+      weight: 10
+      rules:
+        - condition: "岗位城市 in user_profile.target_cities"
+          score: 10
+        - condition: "岗位城市 not in user_profile.target_cities"
+          score: 0
+    - name: "岗位类型匹配"
+      weight: 10
+      rules:
+        - condition: "岗位名称属于运营类"
+          score: 10
+        - condition: "岗位名称不属于运营类"
+          score: 0
+    - name: "经历匹配"
+      weight: 45
+      rules:
+        - name: "AI/大模型经验"
+          condition: "JD包含AI/大模型/AIGC关键词"
+          score: 15
+        - name: "内容运营经验"
+          condition: "JD包含内容运营/内容策略关键词"
+          score: 10
+        - name: "大厂经验优先"
+          condition: "JD提及大厂经验优先或要求互联网经验"
+          score: 10
+        - name: "平台经验"
+          condition: "JD要求的平台与用户经历匹配"
+          score: 5
+        - name: "行业经验"
+          condition: "JD涉及游戏/汽车/电商等用户有经验的行业"
+          score: 5
+
+# 硬性过滤（命中任一则跳过，不看分数）
+hard_filters:
+  exclude_keywords:
+    - "主播"
+    - "带货"
+    - "歌手"
+    - "模特"
+    - "销售"
+    - "星探"
+    - "地推"
+    - "编导"
+    - "经纪人"
+    - "客服"
+    - "猎头"
+    - "兼职"
+    - "招生"
+    - "外贸"
+    - "公会运营"
+
+# 投递策略
+delivery:
+  daily_target: 20                       # 每日投递目标数
+  action: "click_communicate"            # 投递动作（点击沟通按钮）
+  send_resume_on_request: true           # HR要简历时自动发送
+  auto_reply_hr_questions: false         # 严禁自动回复HR问题
+  dedup_by: ["company_name", "position_name"]  # 去重维度
+
+# 消息分类规则
+message_classification:
+  categories:
+    - type: "resume_request"
+      keywords: ["简历", "发简历", "发一下简历"]
+      action: "auto_send_resume"
+    - type: "hr_question"
+      keywords: ["?", "？", "请问", "是否", "能否"]
+      action: "notify_user"
+    - type: "interview"
+      keywords: ["面试", "约面", "见面", "聊聊", "方便来"]
+      action: "notify_user_and_email"
+    - type: "add_contact"
+      keywords: ["微信", "加我", "电话", "联系方式"]
+      action: "notify_user_and_email"
+    - type: "rejection"
+      keywords: ["不合适", "不匹配", "暂时不需要"]
+      action: "notify_user"
+    - type: "greeting"
+      keywords: ["你好", "您好", "在吗"]
+      action: "ignore"
+
+# 通知配置
+notifications:
+  email:
+    to: "your_email@example.com"
+    from_name: "自动运营助手"
+    triggers:
+      - type: "interview"
+        subject: "【投递通知】面试邀约 - {company_name}"
+      - type: "add_contact"
+        subject: "【投递通知】添加联系方式 - {company_name}"
+      - type: "rejection"
+        subject: "【投递通知】岗位被拒 - {company_name}"
+      - type: "error"
+        subject: "【投递异常】{error_type} - {date}"
+
+# 调度配置
+schedule:
+  frequency: "daily"
+  time: "09:00"
+  timezone: "Asia/Shanghai"
+
+# 隐私（求职场景通常不需要虚拟身份，但如果有特殊需求可配置）
+privacy:
+  notes: "求职场景使用真实简历信息，无需虚拟身份"

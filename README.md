@@ -37,6 +37,16 @@ This framework was abstracted from two production use cases:
 
 ---
 
+## 🤖 Coze Skill Version
+
+For users of the [Coze (扣子)](https://www.coze.cn) platform, a ready-to-use skill version is available in the [`coze-skill/`](./coze-skill/) directory. It brings the same automation capabilities as a natural-language-driven skill — no coding required.
+
+- **Install**: Search "App自动运营" in Coze's skill store, or upload the zip manually
+- **Use**: Just say "帮我自动投简历" or "帮我代运营社交平台" in chat
+- **Docs**: See [coze-skill/README.md](./coze-skill/README.md) for details
+
+---
+
 ## Architecture
 
 ```

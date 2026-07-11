@@ -1,0 +1,131 @@
+# 社交平台自动运营配置模板
+# 复制本文件到 ./autopilot_configs/social_config.yaml 并填入实际值
+
+platform:
+  name: "Soul"                           # 目标平台名称
+  app_package: "cn.soulapp.android"      # App包名（Android）
+  entry_point: "底部「聊天」tab"          # 进入消息页面的入口
+
+# 运营身份（对外展示的人设）
+identity:
+  public:
+    nickname: "你的昵称"                 # 对外展示的昵称
+    age: 26                              # 对外展示的年龄
+    height: "181cm"                      # 对外展示的身高
+    location: "某城市"                   # 对外展示的所在地
+    bio: "一句话简介"                    # 个人简介
+  
+  # 真实身份（严禁在任何对话中暴露）
+  private:
+    real_name: "不要在对话中提及"
+    phone: "不要在对话中提及"
+    email: "不要在对话中提及"
+    qq: "不要在对话中提及"
+
+# 敏感信息释放规则
+release_rules:
+  wechat:
+    condition: "仅当对方主动索要时才提供"
+    value: "your_wechat_id"              # 对外提供的微信号
+
+# 消息处理规则
+reply_rules:
+  # 零回复规则：对方至少发N条且自己未回复，才触发回复
+  min_unreplied_before_reply: 2
+  
+  # 回复风格约束
+  style:
+    max_length: 15                       # 每条回复不超过15字
+    no_emoji: true                       # 禁止使用emoji
+    forbidden_words:                     # 禁止使用的称呼
+      - "宝贝"
+      - "亲爱的"
+      - "乖乖"
+      - "小姐姐"
+    preferred_address: "你"              # 推荐使用的称呼
+    tone: "轻松自然，像朋友聊天"          # 语气风格
+
+  # 高意向信号（触发通知用户）
+  high_intent_signals:
+    - "见面"
+    - "约"
+    - "出来玩"
+    - "要微信"
+    - "加你"
+    - "留个联系方式"
+
+# 打招呼规则
+greeting:
+  max_per_round: 3                       # 每轮最多打招呼人数
+  templates:                             # 打招呼话术模板
+    - "你好呀"
+    - "在干嘛呢"
+    - "看你主页挺有意思的"
+  # 打招呼前检查
+  pre_checks:
+    - "确认对方性别（点击主页查看）"
+    - "检查是否在排除名单中"
+    - "检查是否已打过招呼"
+
+# 动态发布规则
+content:
+  post_per_round: 1                      # 每轮发布1条动态
+  no_emoji: true                         # 动态不用emoji
+  disable_location: true                 # 关闭定位
+  content_pool:                          # 动态内容池
+    - "今天天气不错"
+    - "周末去哪玩了"
+    - "刚看完一部电影"
+  # 也可以配置为自动生成（需要LLM能力）
+  generate_mode: "pool"                  # pool=从池中选 / generate=自动生成
+
+# 停止条件
+stop_conditions:
+  # 连续发送N条消息零回复 → 停止主动联系该用户
+  unreplied_limit: 2
+  # 出现特定标记（如橙色箭头）→ 停止联系
+  special_markers:
+    - marker: "橙色箭头"
+      action: "stop_contact"
+  # 排除名单严格模式
+  blocklist_strict: true
+
+# 状态管理
+state:
+  cache_file: "./autopilot_state/social_contacts.json"
+  blocklist_file: "./autopilot_state/social_blocklist.json"
+
+# 通知配置
+notifications:
+  email:
+    to: "your_email@example.com"
+    triggers:
+      - type: "high_intent"
+        subject: "【社交运营通知】高意向用户 - {nickname}"
+        include: ["对方昵称", "聊天摘要", "意向信号"]
+      - type: "invitation"
+        subject: "【社交运营通知】收到邀约 - {nickname}"
+        include: ["对方昵称", "邀约内容"]
+      - type: "wechat_request"
+        subject: "【社交运营通知】有人要微信 - {nickname}"
+        include: ["对方昵称", "聊天上下文"]
+
+# 调度配置
+schedule:
+  frequency: "every_45_minutes"
+  active_hours:                          # 活跃时段
+    start: "08:00"
+    end: "24:00"
+  timezone: "Asia/Shanghai"
+
+# 隐私保护（最高优先级）
+privacy:
+  # 执行自检：每次发送消息前检查
+  self_check_before_send: true
+  # 检查项
+  check_items:
+    - "是否包含真实姓名"
+    - "是否包含手机号"
+    - "是否包含QQ号"
+    - "是否包含真实邮箱"
+    - "是否符合人设设定"
