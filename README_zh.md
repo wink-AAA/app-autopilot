@@ -1,5 +1,7 @@
 # App Autopilot
 
+**[English](README.md)** | [中文文档](#)
+
 **一个可配置的通用 App 自动运营框架 —— 从求职自动投递到社交平台运营。**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)

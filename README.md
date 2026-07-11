@@ -1,5 +1,7 @@
 # App Autopilot
 
+**[中文文档](README_zh.md)** | [English](#)
+
 **A configurable framework for automating repetitive app operations — from job applications to social media management.**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
