@@ -1,0 +1,153 @@
+# =============================================================================
+# App Autopilot - Job Hunter Configuration Example
+# =============================================================================
+# Automated job application scenario: browse job boards, score positions,
+# auto-apply to high-scoring matches, and track application status.
+# =============================================================================
+
+app_name: job-hunter
+log_level: INFO
+
+# ---------------------------------------------------------------------------
+# Scoring dimensions for evaluating job postings
+# ---------------------------------------------------------------------------
+scoring:
+  min_score_threshold: 40.0
+  dimensions:
+    - name: salary
+      weight: 1.5
+      is_hard_requirement: false
+      rules:
+        - type: range
+          field: salary_min
+          min: 8000
+          max: 15000
+          score: 15
+        - type: range
+          field: salary_min
+          min: 15000
+          max: 30000
+          score: 25
+        - type: range
+          field: salary_min
+          min: 30000
+          score: 20
+
+    - name: location
+      weight: 1.0
+      is_hard_requirement: false
+      rules:
+        - type: in_list
+          field: city
+          values: ["Shanghai", "Beijing", "Shenzhen", "Hangzhou"]
+          score: 15
+        - type: exact
+          field: remote
+          value: true
+          score: 10
+
+    - name: job_title
+      weight: 2.0
+      is_hard_requirement: true
+      rules:
+        - type: contains
+          field: title
+          value: engineer
+          score: 20
+        - type: contains
+          field: title
+          value: developer
+          score: 20
+        - type: contains
+          field: title
+          value: architect
+          score: 25
+
+    - name: experience
+      weight: 1.0
+      is_hard_requirement: false
+      rules:
+        - type: range
+          field: experience_years_required
+          min: 3
+          max: 8
+          score: 15
+
+    - name: company_size
+      weight: 0.5
+      is_hard_requirement: false
+      rules:
+        - type: in_list
+          field: company_size
+          values: ["100-500", "500-1000", "1000+"]
+          score: 10
+
+# ---------------------------------------------------------------------------
+# State management
+# ---------------------------------------------------------------------------
+state:
+  storage_path: data/job_hunter_state.json
+  max_history_size: 5000
+
+# ---------------------------------------------------------------------------
+# Notifications - alert when interesting things happen
+# ---------------------------------------------------------------------------
+notifications:
+  default_channel: email
+  routes:
+    - event_type: high_score_match
+      channel: email
+    - event_type: interview_request
+      channel: email
+    - event_type: application_sent
+      channel: webhook
+  email:
+    smtp_host: smtp.your_provider_here.com
+    smtp_port: 587
+    username: your_email_here
+    password: your_password_here
+    sender: your_email_here
+    recipients:
+      - your_notification_recipient_here
+    use_tls: true
+
+# ---------------------------------------------------------------------------
+# Privacy - protect personal information
+# ---------------------------------------------------------------------------
+privacy:
+  persona_name: Alex
+  sensitive_fields:
+    - real_name
+    - phone
+    - home_address
+  blocked_keywords:
+    - confidential_project_alpha
+    - internal_salary_info
+  isolation_rules:
+    - field_name: phone
+      contexts: ["initial_application"]
+      replacement: "Available upon request"
+    - field_name: home_address
+      contexts: ["initial_application", "job_board"]
+      replacement: "your_city_here"
+
+# ---------------------------------------------------------------------------
+# Scheduler - run every 2 hours during business hours
+# ---------------------------------------------------------------------------
+scheduler:
+  trigger_type: cron
+  cron_expression: "0 9-18/2 * * 1-5"
+
+# ---------------------------------------------------------------------------
+# Platform adapters
+# ---------------------------------------------------------------------------
+adapters:
+  - name: example_job_board
+    module_path: platforms.job_board_example
+    options:
+      base_url: https://jobs.example-platform_here.com
+      api_key: your_api_key_here
+      search_keywords:
+        - python developer
+        - backend engineer
+        - software architect

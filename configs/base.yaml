@@ -1,0 +1,70 @@
+# =============================================================================
+# App Autopilot - Base Configuration Template
+# =============================================================================
+# This file defines default values. Scenario-specific configs inherit from
+# this base and override only the fields they need.
+# =============================================================================
+
+app_name: app-autopilot
+log_level: INFO
+
+# ---------------------------------------------------------------------------
+# Scoring Engine
+# ---------------------------------------------------------------------------
+scoring:
+  dimensions: []
+  min_score_threshold: 0.0
+
+# ---------------------------------------------------------------------------
+# State Management
+# ---------------------------------------------------------------------------
+state:
+  storage_path: data/state.json
+  max_history_size: 10000
+
+# ---------------------------------------------------------------------------
+# Notifications
+# ---------------------------------------------------------------------------
+notifications:
+  default_channel: console
+  routes: []
+  email:
+    smtp_host: smtp.your_provider_here.com
+    smtp_port: 587
+    username: your_email_here
+    password: your_password_here
+    sender: your_email_here
+    recipients:
+      - your_notification_recipient_here
+    use_tls: true
+  webhook:
+    url: https://hooks.your_service_here.com/webhook
+    headers:
+      Authorization: "Bearer your_token_here"
+    timeout: 10
+
+# ---------------------------------------------------------------------------
+# Privacy
+# ---------------------------------------------------------------------------
+privacy:
+  persona_name: User
+  sensitive_fields: []
+  blocked_keywords: []
+  isolation_rules: []
+
+# ---------------------------------------------------------------------------
+# Scheduler
+# ---------------------------------------------------------------------------
+scheduler:
+  trigger_type: interval        # interval | cron | manual
+  interval_seconds: 3600
+  cron_expression: null
+
+# ---------------------------------------------------------------------------
+# Platform Adapters
+# ---------------------------------------------------------------------------
+adapters: []
+#  - name: example_platform
+#    module_path: platforms.example_adapter
+#    options:
+#      api_key: your_api_key_here

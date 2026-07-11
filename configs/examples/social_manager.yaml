@@ -1,0 +1,131 @@
+# =============================================================================
+# App Autopilot - Social Media Manager Configuration Example
+# =============================================================================
+# Automated social platform operations: post content, manage interactions,
+# classify incoming messages, and maintain multiple personas.
+# =============================================================================
+
+app_name: social-manager
+log_level: INFO
+
+# ---------------------------------------------------------------------------
+# Scoring dimensions for evaluating incoming interactions
+# ---------------------------------------------------------------------------
+scoring:
+  min_score_threshold: 10.0
+  dimensions:
+    - name: engagement_potential
+      weight: 1.0
+      is_hard_requirement: false
+      rules:
+        - type: contains
+          field: message_content
+          value: collaborate
+          score: 15
+        - type: contains
+          field: message_content
+          value: project
+          score: 10
+        - type: contains
+          field: message_content
+          value: partnership
+          score: 20
+
+    - name: follower_count
+      weight: 0.5
+      is_hard_requirement: false
+      rules:
+        - type: range
+          field: follower_count
+          min: 1000
+          max: 10000
+          score: 10
+        - type: range
+          field: follower_count
+          min: 10000
+          score: 20
+
+    - name: relevance
+      weight: 2.0
+      is_hard_requirement: false
+      rules:
+        - type: contains
+          field: bio
+          value: tech
+          score: 10
+        - type: contains
+          field: bio
+          value: developer
+          score: 10
+        - type: regex
+          field: topics
+          pattern: "(?i)(python|javascript|golang|rust)"
+          score: 15
+
+# ---------------------------------------------------------------------------
+# State management
+# ---------------------------------------------------------------------------
+state:
+  storage_path: data/social_manager_state.json
+  max_history_size: 20000
+
+# ---------------------------------------------------------------------------
+# Notifications
+# ---------------------------------------------------------------------------
+notifications:
+  default_channel: webhook
+  routes:
+    - event_type: collaboration_request
+      channel: webhook
+    - event_type: spam_detected
+      channel: email
+  webhook:
+    url: https://hooks.your_service_here.com/social-events
+    headers:
+      Authorization: "Bearer your_token_here"
+    timeout: 10
+
+# ---------------------------------------------------------------------------
+# Privacy - manage public persona vs private info
+# ---------------------------------------------------------------------------
+privacy:
+  persona_name: TechEnthusiast
+  sensitive_fields:
+    - real_name
+    - phone
+    - email
+    - home_address
+    - workplace
+  blocked_keywords:
+    - competitor_secret
+    - undisclosed_revenue
+  isolation_rules:
+    - field_name: workplace
+      contexts: ["social_post", "comment"]
+      replacement: "a tech company"
+    - field_name: email
+      contexts: ["social_post", "comment", "direct_message"]
+      replacement: "via DM only"
+
+# ---------------------------------------------------------------------------
+# Scheduler - post 3 times a day, check messages every 30 minutes
+# ---------------------------------------------------------------------------
+scheduler:
+  trigger_type: interval
+  interval_seconds: 1800
+
+# ---------------------------------------------------------------------------
+# Platform adapters
+# ---------------------------------------------------------------------------
+adapters:
+  - name: example_social_app
+    module_path: platforms.social_app_example
+    options:
+      base_url: https://social.example-platform_here.com
+      auth_token: your_auth_token_here
+      posting_schedule:
+        times_per_day: 3
+        content_categories:
+          - tech_tips
+          - industry_news
+          - personal_insights
